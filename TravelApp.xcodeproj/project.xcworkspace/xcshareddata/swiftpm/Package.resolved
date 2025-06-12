@@ -1,0 +1,24 @@
+{
+  "originHash" : "06ab2ed0247a50fb65133f28ca66f6cf7e36c779f867b153c5df731f51f3a6d0",
+  "pins" : [
+    {
+      "identity" : "hero",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HeroTransitions/Hero",
+      "state" : {
+        "revision" : "670b81ed3d95f7183bbc009d0ec67c71506557b5",
+        "version" : "1.6.4"
+      }
+    },
+    {
+      "identity" : "swiftui-cached-async-image",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lorenzofiamingo/swiftui-cached-async-image",
+      "state" : {
+        "revision" : "467a3d17479887943ab917a379e62bbaff60ac8a",
+        "version" : "2.1.1"
+      }
+    }
+  ],
+  "version" : 3
+}
