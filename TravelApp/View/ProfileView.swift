@@ -14,7 +14,7 @@ struct ProfileView: View {
                     .padding(.top, 40) // Add space at the top
 
                 // User name
-                Text("Hemant Sonkusare")
+                Text("Eighty Days")
                     .font(.title2)
                     .fontWeight(.bold)
 

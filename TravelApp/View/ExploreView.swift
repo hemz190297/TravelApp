@@ -1,25 +1,22 @@
 import SwiftUI
-import HomeKit
 import CachedAsyncImage
 
-// Main view for exploring travel destinations
 struct ExploreView: View {
-    @StateObject private var viewModel = TravelViewModel() // ViewModel holding travel items
-    @Namespace private var animation // Namespace for matched geometry animations
-    @State private var selectedItem: TravelItem? // Currently selected item for detail view
-    @State private var showDetail = false // Controls whether detail view is shown
-    @GestureState private var dragOffset: CGFloat = 100
-    // Two-column flexible grid layout
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    @StateObject private var viewModel = TravelViewModel()  // ViewModel providing travel items
+    @Namespace private var animation                         // Namespace for matched geometry animations
+    @State private var selectedItem: TravelItem?             // Currently selected item for detail view
+    @State private var showDetail = false                     // Controls visibility of detail modal
+
+    let columns = [GridItem(.flexible()), GridItem(.flexible())]  // Two-column grid layout
 
     var body: some View {
         ZStack {
-            // Scrollable grid of travel items
+            // Grid of travel items
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(viewModel.items) { item in
                         VStack {
-                            // Asynchronously loads and displays the item's image
+                            // Asynchronously load and display image with matched geometry effect
                             CachedAsyncImage(url: URL(string: item.imageURL)) { image in
                                 image
                                     .resizable()
@@ -27,68 +24,69 @@ struct ExploreView: View {
                                     .frame(width: UIScreen.main.bounds.width / 2 - 24, height: 180)
                                     .clipped()
                                     .cornerRadius(12)
-                                    .matchedGeometryEffect(id: item.id, in: animation) // Enables smooth transition
-                                    
+                                    .matchedGeometryEffect(id: item.id, in: animation)
                             } placeholder: {
-                                // Placeholder while image loads
                                 Color.gray
                                     .frame(height: 180)
                                     .cornerRadius(12)
                                     .opacity(0.3)
                             }
-//                            .scaleEffect(selectedItem == item ? 1.1 : 1.0) // Enlarge image if selected
-//                            .animation(.spring(), value: selectedItem) // Animate scale change
 
-                            // Item title with matched geometry for smooth animation
+                            // Item title with matched geometry effect for smooth transition
                             Text(item.title)
                                 .font(.headline)
                                 .padding(.top, 4)
                                 .matchedGeometryEffect(id: "\(item.id)-title", in: animation)
                         }
                         .onTapGesture {
-                            // Animate to detail view when item is tapped
+                            // Animate and show detail view on tap
                             withAnimation(.spring(response: 1, dampingFraction: 0.8)) {
                                 selectedItem = item
                                 showDetail = true
                             }
                         }
-//                        .rotation3DEffect( // Example: 3D rotation effect (currently commented out)
-//                            .degrees(Double(UIScreen.main.bounds.width) / 20.0),
-//                            axis: (x: 1, y: 1, z: 0)
-//                        )
-                        .opacity(showDetail ? 0 : 1) // Fade out grid when detail view is shown
+                        // Fade out grid items when detail view is shown
+                        .opacity(showDetail ? 0 : 1)
                         .animation(.easeOut, value: showDetail)
                     }
                 }
                 .padding()
             }
 
-            // Show detail view if an item is selected and showDetail is true
+            // Detail modal view shown when an item is selected
             if let selectedItem = selectedItem, showDetail {
-                ListViewScreen(item: selectedItem, animation: animation)
-                    .background(Color.white)
-                    .zIndex(1) // Ensure detail view is above the grid
-                    .transition(.asymmetric( // Custom transition for showing/hiding detail view
-                        insertion: .opacity.animation(.easeIn),
-                        removal: .opacity.animation(.easeOut.delay(0.1))
-                    ))
-                    .onTapGesture {
-                        // Hide detail view with animation when tapped
-                        withAnimation(.spring(response: 1, dampingFraction: 0.8)) {
-                            showDetail = false
-                        }
-                        // Reset selectedItem after animation completes
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.selectedItem = nil
-                        }
+                ListViewScreen(
+                    item: selectedItem,
+                    allItems: viewModel.items,
+                    animation: animation
+                ) { newSelection in
+                    // Update detail view with newly selected item from modal's related list
+                    withAnimation(.spring(response: 1, dampingFraction: 0.8)) {
+                        self.selectedItem = newSelection
                     }
+                }
+                .background(Color.white)
+                .zIndex(1)  // Ensure detail modal is above grid
+                .transition(.asymmetric(
+                    insertion: .opacity.animation(.easeIn),
+                    removal: .opacity.animation(.easeOut.delay(0.1))
+                ))
+                .onTapGesture {
+                    // Hide detail modal on tap outside content
+                    withAnimation(.spring(response: 1, dampingFraction: 0.8)) {
+                        showDetail = false
+                    }
+                    // Clear selection after animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.selectedItem = nil
+                    }
+                }
             }
         }
         .onDisappear {
-            // Reset state when navigating away from ExploreView (e.g., switching tabs)
+            // Reset state when view disappears (e.g., navigating away)
             selectedItem = nil
             showDetail = false
         }
-       /* .navigationTitle("Explore")*/ // Title in the navigation bar
     }
-} 
+}
