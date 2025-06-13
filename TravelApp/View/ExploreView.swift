@@ -24,7 +24,7 @@ struct ExploreView: View {
                                     .frame(width: UIScreen.main.bounds.width / 2 - 24, height: 180)
                                     .clipped()
                                     .cornerRadius(12)
-                                    .matchedGeometryEffect(id: item.id, in: animation)
+                                    .matchedGeometryEffect(id: "image-\(item.id)", in: animation)
                             } placeholder: {
                                 Color.gray
                                     .frame(height: 180)
@@ -40,7 +40,7 @@ struct ExploreView: View {
                         }
                         .onTapGesture {
                             // Animate and show detail view on tap
-                            withAnimation(.spring(response: 1, dampingFraction: 0.8)) {
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                                 selectedItem = item
                                 showDetail = true
                             }
